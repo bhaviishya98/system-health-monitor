@@ -8,7 +8,9 @@ export default function Home() {
   useEffect(() => {
     async function fetchReports() {
       try {
-        const res = await fetch("http://localhost:4000/reports/latest");
+        const res = await fetch(
+          "https://system-health-monitor-10b6.onrender.com/reports/latest"
+        );
         const data = await res.json();
         setReports(data);
       } catch (err) {

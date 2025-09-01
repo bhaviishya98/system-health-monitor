@@ -5,7 +5,7 @@ import axios from "axios";
 import cron from "node-cron";
 
 const state_file = "./state.json";
-const backend_url = "http://localhost:4000/report";
+const backend_url = "https://system-health-monitor-10b6.onrender.com/report";
 
 function getMachineId() {
   const idFile = "./machineId.txt";
