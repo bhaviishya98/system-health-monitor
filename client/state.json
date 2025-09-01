@@ -1,7 +1,7 @@
 {
   "machineId": "DESKTOP-NQD7AQ9 - 1756729911044",
   "os": "win32 10.0.26100",
-  "timestamp": "2025-09-01T14:00:00.031Z",
+  "timestamp": "2025-09-01T14:30:00.099Z",
   "checks": {
     "diskEncryption": "encrypted (protection off)",
     "antivirus": "running",
@@ -9,7 +9,7 @@
     "sleepSettings": ">10 min",
     "cpuUsage": "9%",
     "memoryUsage": "86%",
-    "diskUsage": "C: 30.6% used",
-    "uptime": "6h 58m"
+    "diskUsage": "C: 30.7% used",
+    "uptime": "7h 28m"
   }
 }
