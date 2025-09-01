@@ -1,14 +1,16 @@
-import os from "os";
-import fs from "fs";
-import { execSync } from "child_process";
-import axios from "axios";
-import cron from "node-cron";
+const os = require("os");
+const fs = require("fs");
+const { execSync } = require("child_process");
+const axios = require("axios");
+const cron = require("node-cron");
+const path = require("path");
 
-const state_file = "./state.json";
+const state_file = path.join(process.cwd(), "state.json");
+const idFile = path.join(process.cwd(), "machineId.txt");
 const backend_url = "https://system-health-monitor-10b6.onrender.com/report";
 
 function getMachineId() {
-  const idFile = "./machineId.txt";
+  // const idFile = "./machineId.txt";
 
   if (fs.existsSync(idFile)) {
     return fs.readFileSync(idFile, "utf8");
@@ -80,32 +82,33 @@ function checkAntiVirus() {
 }
 
 function checkCPUUsage() {
-    const cpus = os.cpus()
+  const cpus = os.cpus();
 
-    let totalIdle = 0, totalTick = 0;
+  let totalIdle = 0,
+    totalTick = 0;
 
-    cpus.forEach(cpu => {
-        for (let type in cpu.times) {
-            totalTick += cpu.times[type];
-        }
+  cpus.forEach((cpu) => {
+    for (let type in cpu.times) {
+      totalTick += cpu.times[type];
+    }
 
-        totalIdle += cpu.times.idle;
-    })
+    totalIdle += cpu.times.idle;
+  });
 
-    const idle = totalIdle / cpus.length
-    const total = totalTick / cpus.length
-    const usage = 100 - Math.floor((idle / total) * 100);
+  const idle = totalIdle / cpus.length;
+  const total = totalTick / cpus.length;
+  const usage = 100 - Math.floor((idle / total) * 100);
 
-    return `${usage}%`;
+  return `${usage}%`;
 }
 
 function checkMemoryUsage() {
-    const total = os.totalmem();
-    const free = os.freemem();
-    const used = total - free;
-    const usage = Math.floor((used / total) * 100);
+  const total = os.totalmem();
+  const free = os.freemem();
+  const used = total - free;
+  const usage = Math.floor((used / total) * 100);
 
-    return `${usage}%`;
+  return `${usage}%`;
 }
 
 function checkDiskUsage() {
@@ -147,18 +150,18 @@ function checkUptime() {
 function checkOSUpdates() {
   try {
     if (os.platform() === "win32") {
-       const output = execSync(
-         `powershell -Command "Get-WUList | Select-Object -First 1 Title"`,
-         { encoding: "utf8" }
-       );
+      const output = execSync(
+        `powershell -Command "Get-WUList | Select-Object -First 1 Title"`,
+        { encoding: "utf8" }
+      );
 
-       if (output && output.includes("Title")) {
-         return "pending updates found";
-       } else if (output && output.trim().length > 0) {
-         return "updates available";
-       } else {
-         return "up to date";
-       }
+      if (output && output.includes("Title")) {
+        return "pending updates found";
+      } else if (output && output.trim().length > 0) {
+        return "updates available";
+      } else {
+        return "up to date";
+      }
     } else if (os.platform() === "darwin") {
       const output = execSync("softwareupdate -l || true", {
         encoding: "utf8",
@@ -177,7 +180,6 @@ function checkOSUpdates() {
     return "unknown";
   }
 }
-
 
 function checkSleepSettings() {
   try {
@@ -200,7 +202,6 @@ function checkSleepSettings() {
     return "unknown";
   }
 }
-
 
 function collectData() {
   return {

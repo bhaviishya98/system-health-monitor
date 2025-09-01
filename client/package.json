@@ -2,10 +2,26 @@
   "name": "client",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "main": "src/index.js",
+  "bin": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pkg": {
+    "assets": [
+      "src/*.json",
+       "node_modules/axios/**/*"
+    ],
+    "scripts": [
+      "node_modules/axios/**/*"
+    ],
+    "targets": [
+      "node18-win-x64",
+      "node18-linux-x64",
+      "node18-macos-x64"
+    ],
+    "outputPath": "dist"
   },
   "keywords": [],
   "author": "",
