@@ -95,7 +95,7 @@ npm start
 
 ### Option 2: Run Prebuilt Executable (Recommended)
 We provide prebuilt binaries in `dist.zip`.  
-You can **download, unzip, and run directly** without needing Node.js.
+You can **download, unzip, and run directly** without needing Node.js from https://drive.google.com/drive/folders/1PeHxKWmDN3Clcc2Gbz8OTWtU8Sp_7I9C?usp=drive_link.
 
 1. Download `dist.zip` (contains `client-win.exe`, `client-mac`, `client-lin`).
 2. Extract the folder.
