@@ -3,6 +3,12 @@ import MachineBadge from "./MachineBadge";
 import { percentToNumber, formatUptime } from "../utils/formatters";
 import { cn } from "../utils/cn";
 
+function extractDiskPercent(diskUsage) {
+  if (!diskUsage) return 0;
+  const match = diskUsage.match(/([\d.]+)%/); // extract number before %
+  return match ? parseFloat(match[1]) : 0;
+}
+
 export default function ReportsTable({ reports }) {
   return (
     <div className="hidden overflow-x-auto rounded-lg border bg-white lg:block">
@@ -14,7 +20,8 @@ export default function ReportsTable({ reports }) {
               "OS",
               "CPU",
               "Memory",
-              "Disk",
+                          "Disk",
+              "Antivirus",
               "Uptime",
               "Timestamp",
             ].map((h) => (
@@ -32,7 +39,7 @@ export default function ReportsTable({ reports }) {
           {reports.map((r, idx) => {
             const cpu = percentToNumber(r.latest.checks.cpuUsage);
             const mem = percentToNumber(r.latest.checks.memoryUsage);
-            const disk = percentToNumber(r.latest.checks.diskUsage);
+            const disk = extractDiskPercent(r.latest.checks.diskUsage);
             const ts = new Date(r.latest.timestamp);
 
             return (
@@ -59,7 +66,10 @@ export default function ReportsTable({ reports }) {
                   <ProgressBar value={disk} label="Disk" />
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-800">
-                  {formatUptime(r.latest.checks.uptime)}
+                  {r.latest.checks.antivirus}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-800">
+                  {r.latest.checks.uptime}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {ts.toLocaleString()}
