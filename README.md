@@ -61,62 +61,95 @@ cross-platform-monitoring/
 
 ---
 
-## ⚙️ Setup Instructions
 
-### 1. Server (Backend)
-```bash
-cd server
-npm install
-```
+## 🚀 Quick Start
 
-- Create a `.env` file:
-```env
-MONGO_URI=your-mongodb-connection-string
-
-```
-
-- Run server:
-```bash
-npm start
-```
-
-Your backend will be running at `http://localhost:4000`.
-
----
-
-### 2. Dashboard (Web UI)
+### 1️⃣ Running the Dashboard (Frontend)
 ```bash
 cd dashboard
 npm install
 npm run dev
 ```
+- Runs the Next.js app at `http://localhost:3000`
 
-- Open `http://localhost:3000` in your browser.
+### 2️⃣ Running the Server (Backend)
+```bash
+cd server
+npm install
+npm start
+```
+- Starts the Express server on `http://localhost:5000`
+
+Make sure MongoDB is running.
 
 ---
 
-### 3. Client (Agent)
+## 💻 Running the Client (Monitoring Agent)
+
+### Option 1: Build from Source
 ```bash
 cd client
 npm install
-```
-
-Run locally:
-```bash
 npm start
 ```
 
-Or build executables:
-```bash
-pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64
+### Option 2: Run Prebuilt Executable (Recommended)
+We provide prebuilt binaries in `dist.zip`.  
+You can **download, unzip, and run directly** without needing Node.js.
+
+1. Download `dist.zip` (contains `client-win.exe`, `client-mac`, `client-lin`).
+2. Extract the folder.
+3. Run the executable **as Administrator** (important for system checks).
+
+#### 🪟 On Windows
+```powershell
+cd dist
+./client-win.exe
 ```
 
-This will generate binaries in `client/dist/`:
-- `client-win.exe` (Windows)
-- `client-lin` (Linux)
-- `client-mac` (Mac)
+#### 🍏 On macOS
+```bash
+cd dist
+chmod +x client-mac
+./client-mac
+```
+⚠️ If you see *“unverified developer”*, go to  
+**System Settings → Security & Privacy → Allow Anyway**.
+
+#### 🐧 On Linux
+```bash
+cd dist
+chmod +x client-lin
+./client-lin
+```
 
 ---
+
+## 🛠 Tech Stack
+- **Client**: Node.js, `os`, `child_process`, `axios`, `node-cron`
+- **Server**: Express.js, MongoDB, Mongoose
+- **Dashboard**: Next.js, React, TailwindCSS
+
+---
+
+## 📊 Example Data Sent to Server
+```json
+{
+  "machineId": "DESKTOP-12345",
+  "os": "win32 10.0.26100",
+  "timestamp": "2025-09-02T09:30:00.067Z",
+  "checks": {
+    "diskEncryption": "encrypted",
+    "antivirus": "running",
+    "osUpdates": "updates available",
+    "sleepSettings": ">10 min",
+    "cpuUsage": "15%",
+    "memoryUsage": "72%",
+    "diskUsage": "C: 40% used",
+    "uptime": "3h 22m"
+  }
+}
+```
 
 ## 📦 Distributing the Client
 
