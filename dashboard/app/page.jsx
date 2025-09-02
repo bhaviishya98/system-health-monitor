@@ -1,60 +1,77 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useMemo, useState } from "react";
+import useSWR from "swr";
+import Toolbar from "../components/Toolbar";
+import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import ReportsCards from "../components/ReportsCards";
+import ReportsTable from "../components/ReportsTable";
+
+const fetcher = async (url) => {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+  return res.json();
+};
 
 export default function Home() {
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchReports() {
-      try {
-        const res = await fetch(
-          "https://system-health-monitor-10b6.onrender.com/reports/latest"
-        );
-        const data = await res.json();
-        setReports(data);
-      } catch (err) {
-        console.error("Error fetching reports:", err);
-      } finally {
-        setLoading(false);
-      }
+  const [search, setSearch] = useState("");
+  const { data, isLoading, error, mutate, isValidating } = useSWR(
+    "https://system-health-monitor-10b6.onrender.com/reports/latest",
+    fetcher,
+    {
+      refreshInterval: 30000,
+      revalidateOnFocus: true,
     }
-    fetchReports();
-  }, []);
+  );
 
-  if (loading) return <p className="text-center mt-10">Loading reports...</p>;
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    const q = search.trim().toLowerCase();
+    const sorted = [...data].sort(
+      (a, b) =>
+        new Date(b.latest.timestamp).getTime() -
+        new Date(a.latest.timestamp).getTime()
+    );
+    if (!q) return sorted;
+    return sorted.filter((r) => r.latest.machineId.toLowerCase().includes(q));
+  }, [data, search]);
+
+  const lastUpdatedAt = useMemo(() => {
+    if (!data || data.length === 0) return undefined;
+    const newest = data.reduce((acc, cur) =>
+      new Date(cur.latest.timestamp) > new Date(acc.latest.timestamp)
+        ? cur
+        : acc
+    );
+    return new Date(newest.latest.timestamp);
+  }, [data]);
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Machine Health Dashboard</h1>
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">Machine ID</th>
-            <th className="border p-2">OS</th>
-            <th className="border p-2">CPU Usage</th>
-            <th className="border p-2">Memory Usage</th>
-            <th className="border p-2">Disk Usage</th>
-            <th className="border p-2">Uptime</th>
-            <th className="border p-2">Timestamp</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reports.map((r) => (
-            <tr key={r._id} className="text-center">
-              <td className="border p-2">{r.latest.machineId}</td>
-              <td className="border p-2">{r.latest.os}</td>
-              <td className="border p-2">{r.latest.checks.cpuUsage}</td>
-              <td className="border p-2">{r.latest.checks.memoryUsage}</td>
-              <td className="border p-2">{r.latest.checks.diskUsage}</td>
-              <td className="border p-2">{r.latest.checks.uptime}</td>
-              <td className="border p-2">
-                {new Date(r.latest.timestamp).toLocaleString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <main className="font-sans">
+      <section className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
+        <Toolbar
+          count={data?.length ?? 0}
+          lastUpdatedAt={lastUpdatedAt}
+          search={search}
+          setSearch={setSearch}
+          onRefresh={() => mutate()}
+          isRefreshing={isValidating}
+        />
+
+        <div className="mt-6 space-y-6">
+          {isLoading && <LoadingSkeleton />}
+          {error && !isLoading && <ErrorState onRetry={() => mutate()} />}
+          {!isLoading && !error && filtered.length === 0 && <EmptyState />}
+          {!isLoading && !error && filtered.length > 0 && (
+            <>
+              <ReportsCards reports={filtered} />
+              <ReportsTable reports={filtered} />
+            </>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }
